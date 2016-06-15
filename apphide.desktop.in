@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=0.1
+Encoding=UTF-8
+Name=AppHide
+Name[en_IE]=AppHide
+Comment=Hide applications from the gnome shell
+Comment[en_IE]=Hide applications from the gnome shell
+Exec=@prefix@/bin/apphide
+Icon=application-default-icon
+Terminal=false
+Type=Application
+StartupNotify=true
+Categories=GNOME;GTK;Utility;
