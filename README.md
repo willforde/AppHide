@@ -41,7 +41,7 @@ This will create apphide-0.1.tar.xz
 
 ----------------
 # Toto:
-Select or create a suitable icon
+Find or create a suitable icon
 
 ----------------
 # Version
