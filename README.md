@@ -17,10 +17,13 @@ Hide applications from the gnome shell overview window. Works by making a copy o
 * python-xdg
 * pygobject-devel
 
+
 -------------
 # Build
 To build and install this program run:
 ```
+git clone https://github.com/willforde/AppHide.git
+cd AppHide
 ./autogen.sh --prefix=/usr/local
 sudo make install
 ```
@@ -45,10 +48,8 @@ This will create apphide-0.1.tar.xz
 # Toto:
 Find or create a suitable icon
 
-----------------
 # Version
 0.1
 
-----------------
 # License
 GPLv2
