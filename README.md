@@ -7,11 +7,11 @@ Hide applications from the gnome shell overview window. Works by making a copy o
 * PyXDG       => Python library to access freedesktop.org standards     => https://freedesktop.org/wiki/Software/pyxdg/
 * PyGObject   => Development files for the pygobject bindings           => https://wiki.gnome.org/action/show/Projects/PyGObject
 
-#### Ubuntu
+#### Ubuntu - packages
 * python3-gi
 * python3-xdg
 
-#### ArchLinux
+#### ArchLinux - packages
 * python-xdg
 * pygobject-devel
 
