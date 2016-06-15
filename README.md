@@ -17,8 +17,6 @@ Hide applications from the gnome shell overview window. Works by making a copy o
 * python-xdg
 * pygobject-devel
 
-
--------------
 # Build
 To build and install this program run:
 ```
