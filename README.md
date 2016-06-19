@@ -3,7 +3,7 @@
 # Description
 Hide applications from the "Gnome Shell" Overview. This works by making a copy of the "*.desktop*" file from the System Application folder and placing it into the users Local Applications folder. The "*.desktop*" file will be modified with the "**NoDisplay**" option set to "true", which will tell "Gnome Shell" not to show that application.
 
-![Alt text](/screenshot-normal.png "Screenshot")
+![Alt text](/screenshot-adwaita.png "Screenshot")
 
 -------------
 
