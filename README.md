@@ -46,13 +46,13 @@ This will create a "*apphide-0.1.tar.xz*" file
 
 
 ----------------
-# Todo:
+## Todo:
 * Select or create a suitable "icon"
 
 ----------------
-# Version
+## Version
 0.1
 
 ----------------
-# Licence
+## Licence
 GPLv2
