@@ -33,12 +33,12 @@ and installs the "*apphide.desktop*" file in */usr/local/share/applications*
 You can now run this application by typing "*Apphide*" in the Overview.
 
 ----------------
-To uninstall type:
+To uninstall, type:
 ```
 sudo make uninstall
 ```
 ----------------
-To create a "tarball" type:
+To create a "tarball", type:
 ```
 make distcheck
 ```
