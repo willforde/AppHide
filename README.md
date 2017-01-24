@@ -1,4 +1,3 @@
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/5f439fccd6194bf485db4c3dab1797cd)](https://www.codacy.com/app/willforde/AppHide?utm_source=github.com&utm_medium=referral&utm_content=willforde/AppHide&utm_campaign=badger)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SLQMJBWX7G2PU)
 
 # Description
