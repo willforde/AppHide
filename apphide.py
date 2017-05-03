@@ -52,9 +52,9 @@ DEFAULT_ICON = "application-default-icon"
 # Logging
 logger = logging.getLogger("apphide.py")
 logger.setLevel(logging.DEBUG)
-#consoleHandler = logging.StreamHandler(sys.stdout)
-#consoleHandler.setLevel(logging.DEBUG)
-#logger.addHandler(consoleHandler)
+consoleHandler = logging.StreamHandler(sys.stdout)
+consoleHandler.setLevel(logging.DEBUG)
+logger.addHandler(consoleHandler)
 
 
 class AppHideApp(Gtk.Application):
@@ -293,7 +293,7 @@ class Tracker(object):
     Perventing this program from removing or replacing user modified xdg files.
     Instead xdg file will be modified inplace.
     """
-    _config_dir = xdg.BaseDirectory.save_config_path("apphide")
+    _config_dir = xdg.BaseDirectory.save_config_path("apphide.py")
     _tracked_file = os.path.join(_config_dir, "tracker.json")
     _tracked_old_dir = os.path.join(_config_dir, "tracker")
 
@@ -307,6 +307,7 @@ class Tracker(object):
             if os.path.exists(self._tracked_file):
                 with open(self._tracked_file, "r") as stream:
                     self._file_hashes = json.load(stream)
+                    self.cleanup()
 
             # Load & migrate tracked files from older version
             elif os.path.exists(self._tracked_old_dir):
@@ -314,6 +315,12 @@ class Tracker(object):
         else:
             # Create missing config directory
             os.makedirs(self._config_dir)
+
+    def cleanup(self):
+        """Keep the tracker clean of file that don't exist anymore"""
+        for filepath in self._file_hashes.keys():
+            if not os.path.exists(filepath):
+                self.remove(filepath)
 
     def __contains__(self, filepath):
         """Return True/False if given file exists within tracker"""
@@ -405,10 +412,26 @@ class XDGManager(object):
         # Load the top level xdg file
         self.xdg_data = self.parse(self.xdg_files[0])
         self.filename = os.path.basename(self.xdg_files[0])
+        self.cleanup()
+        print(self.xdg_files)
+
+    def cleanup(self):
+        """Cleanup any leftover xdg file if app has been uninstalled."""
+        if self.user_files and not self.system_files and self.user_files[0] in self.tracker:
+            logger.debug("Detected uninstalled app, that has leftover '.desktop' file: %s", self.user_files[0])
+            self.tracker.remove(self.user_files[0])
+            self.xdg_data = None
+
+            try:
+                os.remove(self.user_files[0])
+            except OSError:
+                logger.debug("Failed to remove leftover file.")
+
+            self.tracker.save()
 
     def __bool__(self):
         """Return True if this is an Application and that it's allowed to be show on current desktop"""
-        if self.xdg_data.getType() == "Application":
+        if self.xdg_data and self.xdg_data.getType() == "Application":
             # Check that current desktop is not one of the restricted desktops
             if DESKTOP in self.xdg_data.getNotShowIn():
                 return False
