@@ -1,23 +1,21 @@
-#!/usr/bin/env python3
-
-"""
-AppHide: Hide applications from the gnome shell
-Copyright (C) 2016 William Forde
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 2
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-"""
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+#
+# Copyright (C) 2016 William Forde
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 # Standard library imports
 from collections import defaultdict
@@ -41,23 +39,27 @@ from gi.repository import Gtk
 from gi.repository import Gio
 from gi.repository import Pango
 
-__name__ = "AppHide"
-__icon__ = "application-default-icon"
+__repo__ = "https://github.com/willforde/AppHide.git"
+__copyright__ = "Copyright (C) 2016 William Forde"
+__author__ = "William Forde"
+__license__ = "GPLv2"
+__version__ = "0.2.0"
 
 # Constants
 DESKTOP = os.environ.get("XDG_CURRENT_DESKTOP")
+DEFAULT_ICON = "application-default-icon"
 
 # Logging
-logger = logging.getLogger("apphide.py")
+logger = logging.getLogger("apphide")
 logger.setLevel(logging.DEBUG)
-consoleHandler = logging.StreamHandler(sys.stdout)
-consoleHandler.setLevel(logging.DEBUG)
-logger.addHandler(consoleHandler)
+#consoleHandler = logging.StreamHandler(sys.stdout)
+#consoleHandler.setLevel(logging.DEBUG)
+#logger.addHandler(consoleHandler)
 
 
 class AppHideApp(Gtk.Application):
     def __init__(self):
-        super().__init__(application_id="org.apphide.py", flags=Gio.ApplicationFlags.FLAGS_NONE)
+        super().__init__(application_id="org.apphide", flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.window = None
 
     def do_activate(self):
@@ -73,7 +75,7 @@ class AppHideApp(Gtk.Application):
         self.quit()
 
     def info_dialog(self):
-        """ Display a error dialog when unable to hide/unhide an application """
+        """Display a error dialog when unable to hide/unhide an application"""
         dialog = Gtk.MessageDialog(self.window, 0, Gtk.MessageType.INFO, Gtk.ButtonsType.OK, "Action Required")
         dialog.format_secondary_text("You may need to logout and login again for change to take effect")
         dialog.run()
@@ -83,8 +85,7 @@ class AppHideApp(Gtk.Application):
 class AppHideWin(Gtk.ApplicationWindow):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.current_desktop = os.environ.get("XDG_CURRENT_DESKTOP")
-        self.set_default_icon_name(__icon__)
+        self.set_default_icon_name(DEFAULT_ICON)
         self.set_default_size(860, 800)
         self.filter_by = None
 
@@ -181,7 +182,7 @@ class AppHideWin(Gtk.ApplicationWindow):
             return not row.hidden
 
     def error_dialog(self, error_msg, text):
-        """ Display a error dialog when unable to hide/unhide an application """
+        """Display a error dialog when unable to hide/unhide an application"""
         dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR, Gtk.ButtonsType.CANCEL, error_msg)
         dialog.format_secondary_text(text)
         dialog.run()
@@ -244,25 +245,25 @@ class ListBoxRowApp(Gtk.ListBoxRow):
         iner_box.pack_start(self.btn_hide, True, True, 24)
 
     def set_name(self, name):
-        """ Set the name of application """
+        """Set the name of application"""
         self._app_name.set_label(name)
 
     def set_icon(self, icon):
-        """ Set the Icon of the application """
+        """Set the Icon of the application"""
         self._app_icon.set_from_icon_name(icon, Gtk.IconSize.DIALOG)
 
     def set_description(self, description):
-        """ Set the description of the application """
+        """Set the description of the application"""
         self._app_description.set_label(description)
 
     @property
     def hidden(self):
-        """ Return True/False if the row is hidden or not """
+        """Return True/False if the row is hidden or not"""
         return self.btn_hide.get_active()
 
     @hidden.setter
     def hidden(self, value):
-        """ Set the state of the toggle button """
+        """Set the state of the toggle button"""
         self.btn_hide.set_active(value)
 
 
@@ -292,7 +293,7 @@ class Tracker(object):
     Perventing this program from removing or replacing user modified xdg files.
     Instead xdg file will be modified inplace.
     """
-    _config_dir = xdg.BaseDirectory.save_config_path("apphide.py")
+    _config_dir = xdg.BaseDirectory.save_config_path("apphide")
     _tracked_file = os.path.join(_config_dir, "tracker.json")
     _tracked_old_dir = os.path.join(_config_dir, "tracker")
 
@@ -461,7 +462,7 @@ class XDGManager(object):
         # Remove user xdg file and revert back to source xdg file if source file has required state
         # and it was loaded from system. Keeps the system clean of unnecessary files.
         if from_source and src_xdg_data.getNoDisplay() == state:
-            self.remove_file(dst)
+            os.remove(dst)
             self.tracker.remove(dst)
         else:
             src_xdg_data.set("NoDisplay", str(state).lower(), "Desktop Entry")
@@ -505,16 +506,6 @@ class XDGManager(object):
         return os.path.join(app_dir, self.filename)
 
     @staticmethod
-    def remove_file(src):
-        """Remove given filepath from the filesystem."""
-        try:
-            os.remove(src)
-        except Exception:
-            logger.error("Failed to remvoe file")
-            logger.error("Source: %s", src)
-            raise
-
-    @staticmethod
     def parse(filepath):
         try:
             return xdg.DesktopEntry.DesktopEntry(filepath)
@@ -526,7 +517,6 @@ class XDGManager(object):
     def __repr__(self):
         return "XDGManager({})".format(repr(self.xdg_files))
 
-
 _app = AppHideApp()
-exit_status = _app.run(None)
+exit_status = _app.run(sys.argv)
 sys.exit(exit_status)
