@@ -50,7 +50,7 @@ DESKTOP = os.environ.get("XDG_CURRENT_DESKTOP")
 DEFAULT_ICON = "application-default-icon"
 
 # Logging
-logger = logging.getLogger("apphide")
+logger = logging.getLogger("apphide.py")
 logger.setLevel(logging.DEBUG)
 #consoleHandler = logging.StreamHandler(sys.stdout)
 #consoleHandler.setLevel(logging.DEBUG)
@@ -59,7 +59,7 @@ logger.setLevel(logging.DEBUG)
 
 class AppHideApp(Gtk.Application):
     def __init__(self):
-        super().__init__(application_id="org.apphide", flags=Gio.ApplicationFlags.FLAGS_NONE)
+        super().__init__(application_id="org.apphide.py", flags=Gio.ApplicationFlags.FLAGS_NONE)
         self.window = None
 
     def do_activate(self):
@@ -149,7 +149,7 @@ class AppHideWin(Gtk.ApplicationWindow):
         filter_box.pack_start(btn_filter_hidden, False, False, 0)
 
         # UnHidden Radio Button
-        btn_filter_unhidden = Gtk.RadioButton.new_with_label_from_widget(btn_filter_all, "UnHidden")
+        btn_filter_unhidden = Gtk.RadioButton.new_with_label_from_widget(btn_filter_all, "Showen")
         btn_filter_unhidden.connect("toggled", self.on_radio_toggled, "UnHidden")
         btn_filter_unhidden.set_tooltip_text("Show only unhidden applications")
         filter_box.pack_start(btn_filter_unhidden, False, False, 0)
