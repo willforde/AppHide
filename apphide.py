@@ -116,14 +116,13 @@ class AppHideWin(Gtk.ApplicationWindow):
 
         # Add all found applications to the listbox
         for xdg_app in xdg_apps:
-            if xdg_app:
-                row = ListBoxRowApp()
-                row.btn_hide.connect("clicked", self.on_hide_clicked, row, xdg_app)
-                row.set_icon(xdg_app.icon)
-                row.set_name(xdg_app.name)
-                row.set_description(xdg_app.description)
-                row.hidden = xdg_app.nodisplay
-                self.listbox.add(row)
+            row = ListBoxRowApp()
+            row.btn_hide.connect("clicked", self.on_hide_clicked, row, xdg_app)
+            row.set_icon(xdg_app.icon)
+            row.set_name(xdg_app.name)
+            row.set_description(xdg_app.description)
+            row.hidden = xdg_app.nodisplay
+            self.listbox.add(row)
 
         # Install filter to filter resutls to all / Hidden / UnHidden
         self.listbox.set_filter_func(self.filter_listbox, None, False)
@@ -293,12 +292,12 @@ class Tracker(object):
     Perventing this program from removing or replacing user modified xdg files.
     Instead xdg file will be modified inplace.
     """
-    _config_dir = xdg.BaseDirectory.save_config_path("apphide.py")
+    _config_dir = xdg.BaseDirectory.save_config_path("apphide")
     _tracked_file = os.path.join(_config_dir, "tracker.json")
     _tracked_old_dir = os.path.join(_config_dir, "tracker")
 
     def __init__(self):
-        self._file_hashes = {}
+        self._hashes = {}
         self._changed = False
 
         # Load tracked data if config directory exists
@@ -306,7 +305,7 @@ class Tracker(object):
             # Load in tracked file hashes
             if os.path.exists(self._tracked_file):
                 with open(self._tracked_file, "r") as stream:
-                    self._file_hashes = json.load(stream)
+                    self._hashes = json.load(stream)
                     self.cleanup()
 
             # Load & migrate tracked files from older version
@@ -318,49 +317,57 @@ class Tracker(object):
 
     def cleanup(self):
         """Keep the tracker clean of file that don't exist anymore"""
-        for filepath in self._file_hashes.keys():
+        for filepath in self._hashes.keys():
             if not os.path.exists(filepath):
                 self.remove(filepath)
 
     def __contains__(self, filepath):
         """Return True/False if given file exists within tracker"""
-        return filepath in self._file_hashes
+        return filepath in self._hashes
 
     def add(self, filepath):
         """Add the hash of the given file to be tracked"""
-        self._file_hashes[filepath] = self.file_hash(filepath)
+        self._hashes[filepath] = self.hash_file(filepath)
         self._changed = True
 
     def remove(self, filepath):
         """Remove given file's hash from the tracker"""
-        del self._file_hashes[filepath]
+        del self._hashes[filepath]
         self._changed = True
 
     def compare(self, filepath):
         """Compare hash of given file with the stored hash"""
-        return self._file_hashes[filepath] == self.file_hash(filepath)
+        file_hash = self.hash_file(filepath)
+        if self._hashes[filepath] == file_hash:
+            return True
+        else:
+            logger.debug("Store hash is not a match for file: %s", filepath)
+            logger.debug("%s != %s", self._hashes[filepath], file_hash)
+            self.remove(filepath)
+            return False
 
     def save(self):
         if self._changed:
             self._changed = False
             with open(self._tracked_file, "w") as stream:
-                json.dump(self._file_hashes, stream)
+                json.dump(self._hashes, stream)
 
     def migrate(self):
         """Migrate from the older style of tracking to the new style"""
         for xdg_file in os.listdir(self._tracked_old_dir):
             if xdg_file.endswith(".desktop"):
-                xdg_path = os.path.join(self._tracked_old_dir, xdg_file)
-                self.add(xdg_path)
+                xdg_path = os.path.join(xdg.BaseDirectory.save_data_path("applications"), xdg_file)
+                if os.path.exists(xdg_path):
+                    self.add(xdg_path)
 
         # Remove all old tracked data & save
         shutil.rmtree(self._tracked_old_dir)
         self.save()
 
     @staticmethod
-    def file_hash(filepath):
+    def hash_file(filepath):
         """Return a sha256 hash of a givin file"""
-        hasher = hashlib.sha256()
+        hasher = hashlib.sha224()
 
         # Read in file and update the hasher
         with open(filepath, "rb") as stream:
@@ -375,7 +382,7 @@ def get_xdg_apps():
     Scan the Application directory for valid desktop entries.
     Returns a list of all xdg apps found. 
     """
-    xdg_apps = defaultdict(list)
+    xdg_files = defaultdict(list)
     for data_dir in xdg.BaseDirectory.xdg_data_dirs:
         # Skip if applications directory does not exist
         app_dir = os.path.join(data_dir, "applications")
@@ -386,11 +393,15 @@ def get_xdg_apps():
         for app_name in os.listdir(app_dir):
             if app_name.endswith(".desktop"):
                 app_path = os.path.join(app_dir, app_name)
-                xdg_apps[app_name].append(app_path)
+                xdg_files[app_name].append(app_path)
 
     # Load all found .desktop files
-    xdg_apps = [XDGManager(app) for app in xdg_apps.values()]
-    return sorted(xdg_apps, key=lambda data: data.name.lower())
+    filtered_apps = []
+    for app in xdg_files.values():
+        xdg_data = XDGManager(app)
+        if xdg_data:
+            filtered_apps.append(xdg_data)
+    return sorted(filtered_apps, key=lambda data: data.name.lower())
 
 
 class XDGManager(object):
@@ -413,12 +424,14 @@ class XDGManager(object):
         self.xdg_data = self.parse(self.xdg_files[0])
         self.filename = os.path.basename(self.xdg_files[0])
         self.cleanup()
-        print(self.xdg_files)
 
     def cleanup(self):
         """Cleanup any leftover xdg file if app has been uninstalled."""
+        print(self.xdg_files)
         if self.user_files and not self.system_files and self.user_files[0] in self.tracker:
-            logger.debug("Detected uninstalled app, that has leftover '.desktop' file: %s", self.user_files[0])
+            logger.debug("Detected uninstalled app: %s, removing leftover '.desktop' file: %s",
+                         self.name, self.user_files[0])
+
             self.tracker.remove(self.user_files[0])
             self.xdg_data = None
 
@@ -480,13 +493,18 @@ class XDGManager(object):
         dst = self.save_path()
 
         # If src_xdg_data is not the same as xdg_data then we must have loaded it from system
-        from_source = not src_xdg_data is self.xdg_data
+        from_source = not src_xdg_data.filename is dst
+        print("From Source")
+        print(from_source)
+        print(src_xdg_data.filename)
+        print(dst)
 
         # Remove user xdg file and revert back to source xdg file if source file has required state
         # and it was loaded from system. Keeps the system clean of unnecessary files.
         if from_source and src_xdg_data.getNoDisplay() == state:
-            os.remove(dst)
+            logger.debug("Switching to using source xdg file. Removing user xdg file: %s", dst)
             self.tracker.remove(dst)
+            os.remove(dst)
         else:
             src_xdg_data.set("NoDisplay", str(state).lower(), "Desktop Entry")
             src_xdg_data.write(dst)
