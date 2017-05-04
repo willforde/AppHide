@@ -50,7 +50,7 @@ DESKTOP = os.environ.get("XDG_CURRENT_DESKTOP")
 DEFAULT_ICON = "application-default-icon"
 
 # Logging
-logger = logging.getLogger("apphide.py")
+logger = logging.getLogger("apphide")
 logger.setLevel(logging.DEBUG)
 consoleHandler = logging.StreamHandler(sys.stdout)
 consoleHandler.setLevel(logging.DEBUG)
