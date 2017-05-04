@@ -407,8 +407,8 @@ def get_xdg_apps():
 
     # Load all found .desktop files
     filtered_apps = []
-    for app in xdg_files.values():
-        xdg_data = XDGManager(app)
+    for app_files in xdg_files.values():
+        xdg_data = XDGManager(app_files)
         if xdg_data:
             filtered_apps.append(xdg_data)
     return sorted(filtered_apps, key=lambda data: data.name.lower())
@@ -418,13 +418,13 @@ class XDGManager(object):
     """Manager to handle loading and changing of xdg files."""
     _tracker = None
 
-    def __init__(self, app):
-        self.xdg_files = app
+    def __init__(self, app_files):
+        self.xdg_files = app_files
         self.user_files = []
         self.system_files = []
 
         # Slip files into system/user lists
-        for xdg_file in app:
+        for xdg_file in app_files:
             if xdg_file.startswith(xdg.BaseDirectory.xdg_data_home):
                 self.user_files.append(xdg_file)
             else:
@@ -574,6 +574,6 @@ class XDGManager(object):
     def __repr__(self):
         return "XDGManager({})".format(repr(self.xdg_files))
 
-_app = AppHideApp()
-exit_status = _app.run(sys.argv)
+app = AppHideApp()
+exit_status = app.run(sys.argv)
 sys.exit(exit_status)
