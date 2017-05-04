@@ -148,7 +148,7 @@ class AppHideWin(Gtk.ApplicationWindow):
         filter_box.pack_start(btn_filter_hidden, False, False, 0)
 
         # UnHidden Radio Button
-        btn_filter_unhidden = Gtk.RadioButton.new_with_label_from_widget(btn_filter_all, "Showen")
+        btn_filter_unhidden = Gtk.RadioButton.new_with_label_from_widget(btn_filter_all, "Not Hidden")
         btn_filter_unhidden.connect("toggled", self.on_radio_toggled, "UnHidden")
         btn_filter_unhidden.set_tooltip_text("Show only unhidden applications")
         filter_box.pack_start(btn_filter_unhidden, False, False, 0)
@@ -315,12 +315,6 @@ class Tracker(object):
             # Create missing config directory
             os.makedirs(self._config_dir)
 
-    def cleanup(self):
-        """Keep the tracker clean of file that don't exist anymore"""
-        for filepath in self._hashes.keys():
-            if not os.path.exists(filepath):
-                self.remove(filepath)
-
     def __contains__(self, filepath):
         """Return True/False if given file exists within tracker"""
         return filepath in self._hashes
@@ -364,6 +358,12 @@ class Tracker(object):
         shutil.rmtree(self._tracked_old_dir)
         self.save()
 
+    def cleanup(self):
+        """Keep the tracker clean of files that don't exist anymore"""
+        for filepath in self._hashes.keys():
+            if not os.path.exists(filepath):
+                self.remove(filepath)
+
     @staticmethod
     def hash_file(filepath):
         """Return a sha256 hash of a givin file"""
@@ -405,8 +405,8 @@ def get_xdg_apps():
 
 
 class XDGManager(object):
-    # Load tracking data
-    tracker = Tracker()
+    """Manager to handle loading and changing of xdg files."""
+    _tracker = None
 
     def __init__(self, app):
         self.xdg_files = app
@@ -425,13 +425,17 @@ class XDGManager(object):
         self.filename = os.path.basename(self.xdg_files[0])
         self.cleanup()
 
+    @property
+    def tracker(self):
+        """File tracker"""
+        if XDGManager._tracker is None:
+            XDGManager._tracker = Tracker()
+        return XDGManager._tracker
+
     def cleanup(self):
         """Cleanup any leftover xdg file if app has been uninstalled."""
-        print(self.xdg_files)
         if self.user_files and not self.system_files and self.user_files[0] in self.tracker:
-            logger.debug("Detected uninstalled app: %s, removing leftover '.desktop' file: %s",
-                         self.name, self.user_files[0])
-
+            logger.debug("Detected uninstalled app: %s, removing leftover file: %s", self.name, self.user_files[0])
             self.tracker.remove(self.user_files[0])
             self.xdg_data = None
 
@@ -548,6 +552,7 @@ class XDGManager(object):
 
     @staticmethod
     def parse(filepath):
+        """Parse the given xdg file"""
         try:
             return xdg.DesktopEntry.DesktopEntry(filepath)
         except xdg.Exceptions.ParsingError as e:
