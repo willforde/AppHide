@@ -433,6 +433,7 @@ class XDGManager(object):
         # Load the top level xdg file
         self.xdg_data = self.parse(self.xdg_files[0])
         self.filename = os.path.basename(self.xdg_files[0])
+        self.filepath = self.xdg_files[0]
         self.cleanup()
 
     @property
@@ -548,10 +549,10 @@ class XDGManager(object):
     @lru_cache(maxsize=None)
     def save_path(self):
         """Return path to the user's ".desktop" file, of this applicaion."""
-        if self.xdg_files[0].startswith(xdg.BaseDirectory.xdg_data_home):
-            return self.xdg_files[0]
+        if self.filepath.startswith(xdg.BaseDirectory.xdg_data_home):
+            return self.filepath
         else:
-            if "flatpak/exports" in self.xdg_files[0]:
+            if "flatpak/exports" in self.filepath:
                 for path in xdg.BaseDirectory.xdg_data_dirs:
                     if path.startswith(xdg.BaseDirectory.xdg_data_home) and "flatpak/exports" in path:
                         return os.path.join(path, "applications", self.filename)
