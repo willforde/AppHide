@@ -449,8 +449,12 @@ class XDGManager(object):
     def __bool__(self):
         """Return True if this is an Application and that it's allowed to be show on current desktop"""
         if self.xdg_data and self.xdg_data.getType() == "Application":
+            # Hide app if we have not user file and if nodisplay is set to True by default
+            if not self.user_files and self.nodisplay:
+                return False
+
             # Check that current desktop is not one of the restricted desktops
-            if DESKTOP in self.xdg_data.getNotShowIn():
+            elif DESKTOP in self.xdg_data.getNotShowIn():
                 return False
 
             # Check if this app is allowd to be shown on current desktop
@@ -498,10 +502,6 @@ class XDGManager(object):
 
         # If src_xdg_data is not the same as xdg_data then we must have loaded it from system
         from_source = not src_xdg_data.filename is dst
-        print("From Source")
-        print(from_source)
-        print(src_xdg_data.filename)
-        print(dst)
 
         # Remove user xdg file and revert back to source xdg file if source file has required state
         # and it was loaded from system. Keeps the system clean of unnecessary files.
