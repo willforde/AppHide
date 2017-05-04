@@ -1,9 +1,9 @@
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=SLQMJBWX7G2PU)
-
 # Description
-Hide applications from the "Gnome Shell" Overview. This works by making a copy of the "*.desktop*" file from the System Application folder and placing it into the users Local Applications folder. The "*.desktop*" file will be modified with the "**NoDisplay**" option set to "true", which will tell "Gnome Shell" not to show that application.
+Hide applications from the "Gnome Shell" Overview. This works by changeing the
+state of the **NoDisplay** option within the applications "*.desktop*" file,
+which will tell "Gnome Shell" not to show that application.
 
-![Alt text](/screenshot-adwaita.png "Screenshot")
+![Alt text](https://raw.githubusercontent.com/willforde/AppHide/master/screenshot-adwaita.png "Screenshot")
 
 -------------
 
@@ -11,48 +11,44 @@ Hide applications from the "Gnome Shell" Overview. This works by making a copy o
 * PyXDG       => Python library to access freedesktop.org standards     => https://freedesktop.org/wiki/Software/pyxdg/
 * PyGObject   => Development files for the pygobject bindings           => https://wiki.gnome.org/action/show/Projects/PyGObject
 
-#### Ubuntu - packages
-* python3-gi
-* python3-xdg
+#### Using PIP
+```
+sudo pip install pyxdg PyGObject
+```
 
-#### ArchLinux - packages
-* python-xdg
-* pygobject-devel
+#### Ubuntu
+```
+sudo apt-get install python3-xdg python3-gi
+```
 
-# Build
-To build and install this program run:
+#### ArchLinux
+```
+sudo pacman -Sy python-xdg pygobject-devel
+```
+
+# Install
+First clone this repo and change into AppHide directory
 ```
 git clone https://github.com/willforde/AppHide.git
 cd AppHide
+```
+Install required Dependencies if not already installed
+```
+sudo pip install -r requirements.txt
+```
+Build the install scripts and install
+```
 ./autogen.sh --prefix=/usr/local
 sudo make install
 ```
 Running "*make install*", installs the application in */usr/local/bin*
 and installs the "*apphide.desktop*" file in */usr/local/share/applications*
 
-You can now run this application by typing "*Apphide*" in the Overview.
+You can now run this application by typing **Apphide** in the Overview.
+Or by typing **apphide** on the command line.
 
 ----------------
 To uninstall, type:
 ```
 sudo make uninstall
 ```
-----------------
-To create a "tarball", type:
-```
-make distcheck
-```
-This will create a "*apphide-0.1.tar.xz*" file
-
-
-----------------
-## Todo:
-* Select or create a suitable "icon"
-
-----------------
-## Version
-0.1
-
-----------------
-## Licence
-GPLv2
