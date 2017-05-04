@@ -112,17 +112,22 @@ class AppHideWin(Gtk.ApplicationWindow):
         outer_box.pack_end(self.listbox, True, True, 0)
 
         # Fetch list of all applications and sort by name
-        xdg_apps = get_xdg_apps()
-
-        # Add all found applications to the listbox
-        for xdg_app in xdg_apps:
-            row = ListBoxRowApp()
-            row.btn_hide.connect("clicked", self.on_hide_clicked, row, xdg_app)
-            row.set_icon(xdg_app.icon)
-            row.set_name(xdg_app.name)
-            row.set_description(xdg_app.description)
-            row.hidden = xdg_app.nodisplay
-            self.listbox.add(row)
+        try:
+            xdg_apps = get_xdg_apps()
+        except OSError as e:
+            self.error_dialog("Failed to read aplication data. Sorry", e)
+            logger.error(e)
+            kwargs["application"].quit()
+        else:
+            # Add all found applications to the listbox
+            for xdg_app in xdg_apps:
+                row = ListBoxRowApp()
+                row.btn_hide.connect("clicked", self.on_hide_clicked, row, xdg_app)
+                row.set_icon(xdg_app.icon)
+                row.set_name(xdg_app.name)
+                row.set_description(xdg_app.description)
+                row.hidden = xdg_app.nodisplay
+                self.listbox.add(row)
 
         # Install filter to filter resutls to all / Hidden / UnHidden
         self.listbox.set_filter_func(self.filter_listbox, None, False)
@@ -180,10 +185,10 @@ class AppHideWin(Gtk.ApplicationWindow):
         else:
             return not row.hidden
 
-    def error_dialog(self, error_msg, text):
+    def error_dialog(self, error_msg, error_obj):
         """Display a error dialog when unable to hide/unhide an application"""
         dialog = Gtk.MessageDialog(self, 0, Gtk.MessageType.ERROR, Gtk.ButtonsType.CANCEL, error_msg)
-        dialog.format_secondary_text(text)
+        dialog.format_secondary_text(str(error_obj))
         dialog.run()
         dialog.destroy()
 
@@ -194,7 +199,7 @@ class AppHideWin(Gtk.ApplicationWindow):
             xdg_file.nodisplay = active
         except OSError as e:
             button.set_active(not active)
-            self.error_dialog("Failed to %s %s" % ("Hide" if active else "Show", xdg_file.name), str(e))
+            self.error_dialog("Failed to %s %s" % ("Hide" if active else "Show", xdg_file.name), e)
         else:
             text = "Show" if active else "Hide"
             button.set_label(text)
