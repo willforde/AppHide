@@ -38,6 +38,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from gi.repository import Gio
 from gi.repository import Pango
+from gi.repository import GdkPixbuf
 
 __repo__ = "https://github.com/willforde/AppHide.git"
 __copyright__ = "Copyright (C) 2016 William Forde"
@@ -254,7 +255,11 @@ class ListBoxRowApp(Gtk.ListBoxRow):
 
     def set_icon(self, icon):
         """Set the Icon of the application"""
-        self._app_icon.set_from_icon_name(icon, Gtk.IconSize.DIALOG)
+        if os.path.isfile(icon):
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(icon, width=64, height=64, preserve_aspect_ratio=False)
+            self._app_icon.set_from_pixbuf(pixbuf)
+        else:
+            self._app_icon.set_from_icon_name(icon, Gtk.IconSize.DIALOG)
 
     def set_description(self, description):
         """Set the description of the application"""
