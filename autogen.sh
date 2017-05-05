@@ -2,10 +2,10 @@
 
 set -e
 
-srcdir=`dirname $0`
+srcdir="$(dirname "$0")"
 test -n "$srcdir" || srcdir=.
 
-olddir=`pwd`
+olddir=$(pwd)
 cd "$srcdir"
 
 cp apphide.py apphide
