@@ -1,3 +1,5 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/cafa154108e84a64beb02a7c610169a1)](https://www.codacy.com/app/willforde/AppHide?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=willforde/AppHide&amp;utm_campaign=Badge_Grade)
+
 # Description
 Hide applications from the "Gnome Shell" Overview. This works by changeing the
 state of the **NoDisplay** option within the applications "*.desktop*" file,
