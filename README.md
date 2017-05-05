@@ -9,7 +9,7 @@ which will tell "Gnome Shell" not to show that application.
 
 -------------
 
-# Dependencies
+## Dependencies
 * PyXDG       => Python library to access freedesktop.org standards     => https://freedesktop.org/wiki/Software/pyxdg/
 * PyGObject   => Development files for the pygobject bindings           => https://wiki.gnome.org/action/show/Projects/PyGObject
 
@@ -28,7 +28,7 @@ sudo apt-get install python3-xdg python3-gi
 sudo pacman -Sy python-xdg pygobject-devel
 ```
 
-# Install
+## Install
 First clone this repo and change into AppHide directory
 ```
 git clone https://github.com/willforde/AppHide.git
@@ -53,4 +53,42 @@ Or by typing **apphide** on the command line.
 To uninstall, type:
 ```
 sudo make uninstall
+```
+
+## Command-line arguments
+#### Usage
+```
+apphide.py [-h] [-s id] [-i id] [-t id] [-l] [--no-headers]
+
+optional arguments:
+  -h, --help          show this help message and exit
+  -s id, --show id    UnHide the specified application id
+  -i id, --hide id    Hide the specified application id
+  -t id, --toggle id  Toggle the Hide/Show value for specified application id
+  -l, --list          List available applications.
+  --no-headers        Cleaner output for easier parsing
+```
+
+#### List applications
+```
+$apphide -l
+---------------------------------------------------------------------------------------
+Hidden | Name                     | Description                                 | AppID
+---------------------------------------------------------------------------------------
+No     | AppHide                  | Hide applications from the gnome shell      | apphide
+No     | Archive Manager          | Create and modify an archive                | org.gnome.FileRoller
+No     | Atom                     | A hackable text editor for the 21st Century | atom
+Yes    | Avahi SSH Server Browser | Browse for Zeroconf-enabled SSH Servers     | bssh
+Yes    | Avahi VNC Server Browser | Browse for Zeroconf-enabled VNC Servers     | bvnc
+No     | Boxes                    | View and use virtual machines               | org.gnome.Boxes
+...
+```
+
+#### Hide application
+```
+$apphide -i org.gnome.Boxes
+Hiding application: Boxes
+
+$apphide -l | grep Boxes
+Yes    | Boxes                    | View and use virtual machines                | org.gnome.Boxes
 ```
