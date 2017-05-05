@@ -1,4 +1,5 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/cafa154108e84a64beb02a7c610169a1)](https://www.codacy.com/app/willforde/AppHide?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=willforde/AppHide&amp;utm_campaign=Badge_Grade)
+[![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/willforde)
 
 # Description
 Hide applications from the "Gnome Shell" Overview. This works by changeing the
