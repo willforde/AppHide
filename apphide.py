@@ -607,18 +607,19 @@ class CLIManager(object):
         # Create Parser to parse the required arguments
         parser = ArgumentParser(description="Hide applications from the gnome overview.")
 
-        group = parser.add_mutually_exclusive_group()
-        group.add_argument("-s", "--show", action="store", metavar="id",
-                           help="UnHide the specified application id")
-        group.add_argument("-i", "--hide", action="store", metavar="id",
-                           help="Hide the specified application id")
-        group.add_argument("-t", "--toggle", action="store", metavar="id",
-                           help="Toggle the Hide/Show value for specified application id")
+        change_group = parser.add_mutually_exclusive_group()
+        change_group.add_argument("-s", "--show", action="store", metavar="id",
+                                  help="UnHide the specified application id")
+        change_group.add_argument("-i", "--hide", action="store", metavar="id",
+                                  help="Hide the specified application id")
+        change_group.add_argument("-t", "--toggle", action="store", metavar="id",
+                                  help="Toggle the Hide/Show value for specified application id")
 
-        parser.add_argument("-l", "--list", default=False, action="store_true",
-                            help="List available applications.")
-        parser.add_argument("--no-headers", default=False, action="store_true",
-                            help="Cleaner output for easier parsing")
+        list_group = parser.add_argument_group()
+        list_group.add_argument("-l", "--list", default=False, action="store_true",
+                                help="List available applications.")
+        list_group.add_argument("-n", "--no-headers", default=False, action="store_true",
+                                help="Cleaner output for easier parsing")
         # Parse All Args
         return parser.parse_args()
 
