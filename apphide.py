@@ -436,7 +436,7 @@ class XDGManager(object):
         self.xdg_data = self.parse(self.xdg_files[0])
         self.filename = os.path.basename(self.xdg_files[0])
         self.filepath = self.xdg_files[0]
-        self.appid = self.filename.rsplit(".", 1)[0]
+        self.appid = self.filename.rsplit(".", 1)[0].lower()
         self.cleanup()
 
     @property
@@ -596,11 +596,11 @@ class CLIManager(object):
             if args.list:
                 self.list_apps()
             elif args.show:
-                self.change_state(args.show, False)
+                self.change_state(args.show.lower(), False)
             elif args.hide:
-                self.change_state(args.hide, True)
+                self.change_state(args.hide.lower(), True)
             elif args.toggle:
-                self.change_state(args.toggle)
+                self.change_state(args.toggle.lower())
 
     @staticmethod
     def parse_args():

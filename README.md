@@ -76,19 +76,19 @@ $apphide -l
 Hidden | Name                     | Description                                 | AppID
 ---------------------------------------------------------------------------------------
 No     | AppHide                  | Hide applications from the gnome shell      | apphide
-No     | Archive Manager          | Create and modify an archive                | org.gnome.FileRoller
+No     | Archive Manager          | Create and modify an archive                | org.gnome.fileroller
 No     | Atom                     | A hackable text editor for the 21st Century | atom
 Yes    | Avahi SSH Server Browser | Browse for Zeroconf-enabled SSH Servers     | bssh
 Yes    | Avahi VNC Server Browser | Browse for Zeroconf-enabled VNC Servers     | bvnc
-No     | Boxes                    | View and use virtual machines               | org.gnome.Boxes
+No     | Boxes                    | View and use virtual machines               | org.gnome.boxes
 ...
 ```
 
 #### Hide application
 ```
-$apphide -i org.gnome.Boxes
+$apphide -i org.gnome.boxes
 Hiding application: Boxes
 
 $apphide -l | grep Boxes
-Yes    | Boxes                    | View and use virtual machines                | org.gnome.Boxes
+Yes    | Boxes                    | View and use virtual machines                | org.gnome.boxes
 ```
