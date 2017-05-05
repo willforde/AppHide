@@ -19,6 +19,7 @@
 
 # Standard library imports
 from collections import defaultdict
+from argparse import ArgumentParser
 from functools import lru_cache
 import logging
 import hashlib
@@ -52,7 +53,6 @@ DEFAULT_ICON = "application-default-icon"
 
 # Logging
 logger = logging.getLogger("apphide")
-logger.setLevel(logging.DEBUG)
 consoleHandler = logging.StreamHandler(sys.stdout)
 consoleHandler.setLevel(logging.DEBUG)
 logger.addHandler(consoleHandler)
@@ -116,7 +116,9 @@ class AppHideWin(Gtk.ApplicationWindow):
         try:
             xdg_apps = get_xdg_apps()
         except OSError as e:
-            self.error_dialog("Failed to read aplication data. Sorry", e)
+            msg = "Failed to read aplication data. Sorry."
+            self.error_dialog(msg, e)
+            logger.error(msg)
             logger.error(e)
             kwargs["application"].quit()
         else:
@@ -434,6 +436,7 @@ class XDGManager(object):
         self.xdg_data = self.parse(self.xdg_files[0])
         self.filename = os.path.basename(self.xdg_files[0])
         self.filepath = self.xdg_files[0]
+        self.appid = self.filename.rsplit(".", 1)[0]
         self.cleanup()
 
     @property
@@ -512,7 +515,7 @@ class XDGManager(object):
         dst = self.save_path()
 
         # If src_xdg_data is not the same as xdg_data then we must have loaded it from system
-        from_source = not src_xdg_data.filename is dst
+        from_source = src_xdg_data.filename is not dst
 
         # Remove user xdg file and revert back to source xdg file if source file has required state
         # and it was loaded from system. Keeps the system clean of unnecessary files.
@@ -574,6 +577,113 @@ class XDGManager(object):
     def __repr__(self):
         return "XDGManager({})".format(repr(self.xdg_files))
 
-app = AppHideApp()
-exit_status = app.run(sys.argv)
-sys.exit(exit_status)
+
+class CLIManager(object):
+    def __init__(self):
+        self.args = args = self.parse_args()
+        self.exit_status = 0
+
+        try:
+            # Fetch all applications
+            self.xdg_apps = get_xdg_apps()
+        except Exception as e:
+            msg = "Failed to read aplication data. Sorry."
+            self.exit_status = 1
+            logger.error(msg)
+            logger.error(e)
+        else:
+            # Execute commandline options
+            if args.list:
+                self.list_apps()
+            elif args.show:
+                self.change_state(args.show, False)
+            elif args.hide:
+                self.change_state(args.hide, True)
+            elif args.toggle:
+                self.change_state(args.toggle)
+
+    @staticmethod
+    def parse_args():
+        # Create Parser to parse the required arguments
+        parser = ArgumentParser(description="Hide applications from the gnome overview.")
+        parser.add_argument("-s", "--show", action="store", metavar="id",
+                            help="UnHide the specified application id")
+        parser.add_argument("-i", "--hide", action="store", metavar="id",
+                            help="Hide the specified application id")
+        parser.add_argument("-t", "--toggle", action="store", metavar="id",
+                            help="Toggle the Hide/Show value for specified application id")
+        parser.add_argument("-l", "--list", default=False, action="store_true",
+                            help="List available applications.")
+        parser.add_argument("--no-headers", default=False, action="store_true",
+                            help="Cleaner output for easier parsing")
+        # Parse All Args
+        return parser.parse_args()
+
+    def list_apps(self):
+        # Calculate the max length of the Name colume
+        # Base on the length of the longest name
+        max_name_len = 0
+        max_dec_len = 0
+        for xdg_app in self.xdg_apps:
+            len_of_name = len(xdg_app.name)
+            len_of_dec = len(xdg_app.description)
+
+            if len_of_name > max_name_len:
+                max_name_len = len_of_name
+
+            if len_of_dec > max_dec_len:
+                max_dec_len = len_of_dec
+
+        # Display header info
+        if self.args.no_headers:
+            layout = "%s %s %s %s"
+        else:
+            layout = "%s | %s | %s | %s"
+            logger.info("-" * (max_name_len + 20 + max_dec_len))
+            logger.info(layout, "Hidden", "Name".ljust(max_name_len), "Description".ljust(max_dec_len), "AppID")
+            logger.info("-" * (max_name_len + 20 + max_dec_len))
+
+        # Print each application in a newline
+        for xdg_app in self.xdg_apps:
+            hidden = ("Yes" if xdg_app.nodisplay else "No").ljust(6)
+            description = xdg_app.description.ljust(max_dec_len)
+            name = xdg_app.name.ljust(max_name_len)
+            logger.info(layout, hidden, name, description, xdg_app.appid)
+
+    def change_state(self, appid, value=None):
+        # Search for spicified app
+        for xdg_app in self.xdg_apps:
+            if xdg_app.appid == appid:
+                current_value = xdg_app.nodisplay
+                try:
+                    # Toggle nodisplay if no value is given
+                    if value is None:
+                        xdg_app.nodisplay = not current_value
+
+                    # Check if the nodisplay state even needs changing
+                    elif current_value == value:
+                        logger.info("Application is allready set to %s", "hide" if value else "show")
+                    else:
+                        xdg_app.nodisplay = value
+
+                except Exception as e:
+                    logger.error("Failed to %s application %s", "Hide" if value else "Show", appid)
+                    self.exit_status = 1
+                    logger.error(e)
+                else:
+                    break
+        else:
+            logger.error("Unable to find specified application: %s", appid)
+
+
+if __name__ == "__main__":
+    if sys.argv[1:]:
+        logger.setLevel(logging.INFO)
+        cli = CLIManager()
+        exit_status = cli.exit_status
+    else:
+        logger.setLevel(logging.DEBUG)
+        app = AppHideApp()
+        exit_status = app.run(None)
+
+    sys.exit(exit_status)
