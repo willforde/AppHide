@@ -687,8 +687,9 @@ class CLIManager(object):
                     logger.error("Failed to %s application %s", "Hide" if value else "Show", appid)
                     self.exit_status = 1
                     logger.error(e)
-                else:
-                    break
+
+                # App has been found, No point in continuing
+                break
         else:
             logger.error("Unable to find specified application: %s", appid)
 
