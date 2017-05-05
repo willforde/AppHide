@@ -58,15 +58,18 @@ sudo make uninstall
 ## Command-line arguments
 #### Usage
 ```
-apphide.py [-h] [-s id] [-i id] [-t id] [-l] [--no-headers]
+apphide.py [-h] [-s id | -i id | -t id] [-l] [-y | -n] [-o]
 
 optional arguments:
   -h, --help          show this help message and exit
-  -s id, --show id    UnHide the specified application id
-  -i id, --hide id    Hide the specified application id
-  -t id, --toggle id  Toggle the Hide/Show value for specified application id
-  -l, --list          List available applications.
-  --no-headers        Cleaner output for easier parsing
+  -s id, --show id    UnHide the specified application
+  -i id, --hide id    Hide the specified application
+  -t id, --toggle id  Toggle the Hide/Show state for specified application
+
+  -l, --list          List available applications
+  -y, --hidden        Apply filter to only show hidden applications
+  -n, --not-hidden    Apply filter to only show applications that are not hidden
+  -o, --no-headers    Cleaner output for easier parsing
 ```
 
 #### List applications

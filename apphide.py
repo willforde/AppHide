@@ -609,16 +609,23 @@ class CLIManager(object):
 
         change_group = parser.add_mutually_exclusive_group()
         change_group.add_argument("-s", "--show", action="store", metavar="id",
-                                  help="UnHide the specified application id")
+                                  help="UnHide the specified application")
         change_group.add_argument("-i", "--hide", action="store", metavar="id",
-                                  help="Hide the specified application id")
+                                  help="Hide the specified application")
         change_group.add_argument("-t", "--toggle", action="store", metavar="id",
-                                  help="Toggle the Hide/Show value for specified application id")
+                                  help="Toggle the Hide/Show state for specified application")
 
         list_group = parser.add_argument_group()
         list_group.add_argument("-l", "--list", default=False, action="store_true",
-                                help="List available applications.")
-        list_group.add_argument("-n", "--no-headers", default=False, action="store_true",
+                                help="List available applications")
+
+        test = list_group.add_mutually_exclusive_group()
+        test.add_argument("-y", "--hidden", default=None, action="store_true", dest="nodisplay",
+                                help="Apply filter to only show hidden applications")
+        test.add_argument("-n", "--not-hidden", default=None, action="store_false", dest="nodisplay",
+                                help="Apply filter to only show applications that are not hidden")
+
+        list_group.add_argument("-o", "--no-headers", default=False, action="store_true",
                                 help="Cleaner output for easier parsing")
         # Parse All Args
         return parser.parse_args()
@@ -647,8 +654,14 @@ class CLIManager(object):
             logger.info(layout, "Hidden", "Name".ljust(max_name_len), "Description".ljust(max_dec_len), "AppID")
             logger.info("-" * (max_name_len + 20 + max_dec_len))
 
+        # Check if the list needs filtering
+        if self.args.nodisplay is not None:
+            xdg_apps = (xdg_app for xdg_app in self.xdg_apps if xdg_app.nodisplay is self.args.nodisplay)
+        else:
+            xdg_apps = self.xdg_apps
+
         # Print each application in a newline
-        for xdg_app in self.xdg_apps:
+        for xdg_app in xdg_apps:
             hidden = ("Yes" if xdg_app.nodisplay else "No").ljust(6)
             description = xdg_app.description.ljust(max_dec_len)
             name = xdg_app.name.ljust(max_name_len)
