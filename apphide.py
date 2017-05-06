@@ -17,6 +17,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+"""
+Hide applications from the Gnome Shell Overview. This works by changing the
+state of the 'NoDisplay' option within the applications '.desktop' file,
+which will tell "Gnome Shell" not to show that application.
+"""
+
 # Standard library imports
 from collections import defaultdict
 from argparse import ArgumentParser
