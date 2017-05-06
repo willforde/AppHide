@@ -6,7 +6,7 @@ Hide applications from the "Gnome Shell" Overview. This works by changing the
 state of the **NoDisplay** option within the applications "*.desktop*" file,
 which will tell "Gnome Shell" not to show that application.
 
-![Alt text](https://raw.githubusercontent.com/willforde/AppHide/master/screenshot.png "Screenshot")
+![Screenshot of Gui](/screenshot.png "Screenshot")
 
 -------------
 
