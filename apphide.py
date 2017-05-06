@@ -90,27 +90,57 @@ class AppHideWin(Gtk.ApplicationWindow):
         self.set_default_size(860, 800)
         self.filter_by = None
 
+        # The outer box to store the filter box and scrolledwindow
+        outer_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        outer_box.set_halign(Gtk.Align.CENTER)
+        self.add(outer_box)
+
+        # Filter box to store the filter radio button
+        filter_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        filter_box.set_halign(Gtk.Align.CENTER)
+        filter_box.set_valign(Gtk.Align.START)
+        outer_box.add(filter_box)
+
+        # All Radio Button
+        btn_filter_all = Gtk.RadioButton.new_with_label_from_widget(None, "All")
+        btn_filter_all.connect("toggled", self.on_radio_toggled, None)
+        btn_filter_all.set_tooltip_text("Show all applications")
+        filter_box.pack_start(btn_filter_all, False, False, 0)
+
+        # Hidden Radio Button
+        btn_filter_hidden = Gtk.RadioButton.new_with_label_from_widget(btn_filter_all, "Hidden")
+        btn_filter_hidden.connect("toggled", self.on_radio_toggled, "Hidden")
+        btn_filter_hidden.set_tooltip_text("Show only hidden applications")
+        filter_box.pack_start(btn_filter_hidden, False, False, 0)
+
+        # UnHidden Radio Button
+        btn_filter_unhidden = Gtk.RadioButton.new_with_label_from_widget(btn_filter_all, "Not Hidden")
+        btn_filter_unhidden.connect("toggled", self.on_radio_toggled, "UnHidden")
+        btn_filter_unhidden.set_tooltip_text("Show only unhidden applications")
+        filter_box.pack_start(btn_filter_unhidden, False, False, 0)
+
         # Scrolledwindow to scroll through all applications
         scrolledwindow = Gtk.ScrolledWindow()
         scrolledwindow.set_hexpand(False)
         scrolledwindow.set_vexpand(True)
         scrolledwindow.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC)
-        self.add(scrolledwindow)
+        self.scroll_adj = scrolledwindow.get_vadjustment()
+        outer_box.add(scrolledwindow)
 
-        # Outer box to store the filter box and listbox
-        outer_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-        outer_box.set_halign(Gtk.Align.CENTER)
-        outer_box.set_valign(Gtk.Align.START)
-        outer_box.set_size_request(860, -1)
-        outer_box.set_margin_right(16)
-        outer_box.set_margin_left(16)
-        scrolledwindow.add(outer_box)
+        # Iner box to store listbox
+        iner_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        iner_box.set_halign(Gtk.Align.CENTER)
+        iner_box.set_valign(Gtk.Align.START)
+        iner_box.set_size_request(860, -1)
+        iner_box.set_margin_right(16)
+        iner_box.set_margin_left(16)
+        scrolledwindow.add(iner_box)
 
         # Listbox to list all applications
         self.listbox = Gtk.ListBox()
         self.listbox.connect("row-activated", self.on_row_activated)
         self.listbox.set_selection_mode(Gtk.SelectionMode.NONE)
-        outer_box.pack_end(self.listbox, True, True, 0)
+        iner_box.pack_end(self.listbox, True, True, 0)
 
         # Fetch list of all applications and sort by name
         try:
@@ -135,32 +165,8 @@ class AppHideWin(Gtk.ApplicationWindow):
         # Install filter to filter resutls to all / Hidden / UnHidden
         self.listbox.set_filter_func(self.filter_listbox, None, False)
         self.listbox.set_header_func(self.header_func, None)
-        self.listbox.show_all()
-
-        # Filter box to store the filter radio button
-        filter_box = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
-        filter_box.set_halign(Gtk.Align.CENTER)
-        filter_box.set_valign(Gtk.Align.START)
-        outer_box.pack_start(filter_box, True, True, 0)
-
-        # All Radio Button
-        btn_filter_all = Gtk.RadioButton.new_with_label_from_widget(None, "All")
-        btn_filter_all.connect("toggled", self.on_radio_toggled, None)
-        btn_filter_all.set_tooltip_text("Show all applications")
-        filter_box.pack_start(btn_filter_all, False, False, 0)
-
-        # Hidden Radio Button
-        btn_filter_hidden = Gtk.RadioButton.new_with_label_from_widget(btn_filter_all, "Hidden")
-        btn_filter_hidden.connect("toggled", self.on_radio_toggled, "Hidden")
-        btn_filter_hidden.set_tooltip_text("Show only hidden applications")
-        filter_box.pack_start(btn_filter_hidden, False, False, 0)
-
-        # UnHidden Radio Button
-        btn_filter_unhidden = Gtk.RadioButton.new_with_label_from_widget(btn_filter_all, "Not Hidden")
-        btn_filter_unhidden.connect("toggled", self.on_radio_toggled, "UnHidden")
-        btn_filter_unhidden.set_tooltip_text("Show only unhidden applications")
-        filter_box.pack_start(btn_filter_unhidden, False, False, 0)
         self.row_changed = False
+        self.listbox.show_all()
 
     @staticmethod
     def header_func(row, before, _):
@@ -177,6 +183,7 @@ class AppHideWin(Gtk.ApplicationWindow):
     def on_radio_toggled(self, _, filter_by):
         if not self.filter_by == filter_by:
             self.filter_by = filter_by
+            self.scroll_adj.set_value(0.0)
             self.listbox.invalidate_filter()
             self.listbox.invalidate_headers()
 
