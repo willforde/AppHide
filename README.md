@@ -2,7 +2,7 @@
 [![Say Thanks!](https://img.shields.io/badge/Say%20Thanks-!-1EAEDB.svg)](https://saythanks.io/to/willforde)
 
 # Description
-Hide applications from the "Gnome Shell" Overview. This works by changeing the
+Hide applications from the "Gnome Shell" Overview. This works by changing the
 state of the **NoDisplay** option within the applications "*.desktop*" file,
 which will tell "Gnome Shell" not to show that application.
 
