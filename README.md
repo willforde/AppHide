@@ -12,7 +12,7 @@ which will tell "Gnome Shell" not to show that application.
 
 ## Dependencies
 * PyXDG       => Python library to access freedesktop.org standards     => https://freedesktop.org/wiki/Software/pyxdg/
-* PyGObject   => Development files for the pygobject bindings           => https://wiki.gnome.org/action/show/Projects/PyGObject
+* PyGObject   => Development files for the pygobject bindings           => https://pygobject.readthedocs.io/en/latest/
 
 #### Using PIP
 ```
