@@ -59,7 +59,7 @@ sudo make uninstall
 ## Command-line arguments
 #### Usage
 ```
-apphide.py [-h] [-s id | -i id | -t id] [-l] [-y | -n] [-o]
+apphide [-h] [-s id | -i id | -t id] [-l] [-y | -n] [-o]
 
 optional arguments:
   -h, --help          show this help message and exit
