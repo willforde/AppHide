@@ -154,8 +154,7 @@ class AppHideWin(Gtk.ApplicationWindow):
         except OSError as e:
             msg = "Failed to read aplication data. Sorry."
             self.error_dialog(msg, e)
-            logger.error(msg)
-            logger.error(e)
+            logger.exception(msg)
             kwargs["application"].quit()
         else:
             # Add all found applications to the listbox
@@ -599,11 +598,10 @@ class CLIManager(object):
         try:
             # Fetch all applications
             self.xdg_apps = get_xdg_apps()
-        except Exception as e:
+        except Exception:
             msg = "Failed to read aplication data. Sorry."
             self.exit_status = 1
-            logger.error(msg)
-            logger.error(e)
+            logger.exception(msg)
         else:
             # Execute commandline options
             if args.list:
