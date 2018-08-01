@@ -51,7 +51,7 @@ __repo__ = "https://github.com/willforde/AppHide.git"
 __copyright__ = "Copyright (C) 2016 William Forde"
 __author__ = "William Forde"
 __license__ = "GPLv2"
-__version__ = "0.2.0"
+__version__ = "1.0.1"
 
 # Constants
 DESKTOP = os.environ.get("XDG_CURRENT_DESKTOP")
